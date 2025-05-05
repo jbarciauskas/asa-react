@@ -1,5 +1,4 @@
 import React from 'react';
-import GoalsAddedTable from './components/GoalsAddedTable';
 import NWSLGoalsAddedTable from './components/NWSLGoalsAddedTable';
 
 function App() {
