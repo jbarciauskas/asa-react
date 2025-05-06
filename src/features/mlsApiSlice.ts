@@ -1,24 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { NWSLGoalsAddedPlayer, NWSLPlayer, NWSLTeam } from '../api/nwslApi';
+import { MLSGoalsAddedPlayer, MLSPlayer, MLSTeam } from '../api/mlsApi';
 
-export const nwslApi = createApi({
-  reducerPath: 'nwslApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api/v1/nwsl' }),
+export const mlsApi = createApi({
+  reducerPath: 'mlsApi',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api/v1/mls' }),
   tagTypes: ['Teams', 'Players', 'GoalsAdded'],
   endpoints: (builder) => ({
-    getTeams: builder.query<NWSLTeam[], void>({
+    getTeams: builder.query<MLSTeam[], void>({
       query: () => 'teams',
       providesTags: ['Teams'],
     }),
-    getPlayers: builder.query<NWSLPlayer[], void>({
+    getPlayers: builder.query<MLSPlayer[], void>({
       query: () => 'players',
       providesTags: ['Players'],
-      transformResponse: (response: NWSLPlayer[]) => {
+      transformResponse: (response: MLSPlayer[]) => {
         // The API client handles pagination, so we just return the full response
         return response;
       },
     }),
-    getGoalsAdded: builder.query<NWSLGoalsAddedPlayer[], { season_name: string }>({
+    getGoalsAdded: builder.query<MLSGoalsAddedPlayer[], { season_name: string }>({
       query: (params) => ({
         url: 'players/goals-added',
         params,
@@ -34,4 +34,4 @@ export const {
   useGetTeamsQuery,
   useGetPlayersQuery,
   useGetGoalsAddedQuery,
-} = nwslApi; 
+} = mlsApi; 

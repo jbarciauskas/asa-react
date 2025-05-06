@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useGetTeamsQuery, useGetPlayersQuery, useGetGoalsAddedQuery } from '../features/nwslApiSlice';
+import { useState, useEffect } from 'react';
+import { useGetTeamsQuery, useGetPlayersQuery, useGetGoalsAddedQuery } from '../features/mlsApiSlice';
 import LeagueGoalsAddedTable from './LeagueGoalsAddedTable';
 
-export default function NWSLGoalsAddedTable() {
+export default function MLSGoalsAddedTable() {
   const [selectedYear, setSelectedYear] = useState<string>('2025');
-  const [years] = useState<string[]>(['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016']);
+  const [years] = useState<string[]>(['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015', '2014', '2013']);
 
   // RTK Query hooks
   const { data: teams = [], isLoading: isLoadingTeams } = useGetTeamsQuery();
@@ -15,7 +15,7 @@ export default function NWSLGoalsAddedTable() {
 
   return (
     <LeagueGoalsAddedTable
-      leagueName="NWSL"
+      leagueName="MLS"
       teams={teams}
       players={players}
       goalsAdded={goalsAdded}
