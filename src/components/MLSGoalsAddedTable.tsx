@@ -8,7 +8,7 @@ export default function MLSGoalsAddedTable() {
 
   // RTK Query hooks
   const { data: teams = [], isLoading: isLoadingTeams } = useGetTeamsQuery();
-  const { data: players = [], isLoading: isLoadingPlayers } = useGetPlayersQuery();
+  const { data: players = [], isLoading: isLoadingPlayers } = useGetPlayersQuery({});
   const { data: goalsAdded = [], isLoading: isLoadingGoalsAdded } = useGetGoalsAddedQuery({
     season_name: selectedYear,
   });

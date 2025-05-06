@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Player, Team, GoalsAddedPlayer } from '../api/types';
+import { Player, Team, GoalsAddedPlayer, CommonApiParams } from '../api/types';
+import { fetchAllPlayers } from '../api/utils';
 
 export const mlsApi = createApi({
   reducerPath: 'mlsApi',
@@ -10,12 +11,14 @@ export const mlsApi = createApi({
       query: () => 'teams',
       providesTags: ['Teams'],
     }),
-    getPlayers: builder.query<Player[], void>({
-      query: () => 'players',
+    getPlayers: builder.query<Player[], CommonApiParams>({
+      query: (params) => ({
+        url: 'players',
+        params,
+      }),
       providesTags: ['Players'],
-      transformResponse: (response: Player[]) => {
-        // The API client handles pagination, so we just return the full response
-        return response;
+      transformResponse: async (response: Player[]) => {
+        return fetchAllPlayers('/api/v1/mls', response);
       },
     }),
     getGoalsAdded: builder.query<GoalsAddedPlayer[], { season_name: string }>({
