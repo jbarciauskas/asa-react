@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import NWSLGoalsAddedTable from './components/NWSLGoalsAddedTable';
-import MLSGoalsAddedTable from './components/MLSGoalsAddedTable';
+import LeagueGoalsAddedTable from './components/LeagueGoalsAddedTable';
 
 function App() {
   return (
@@ -15,14 +14,14 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             NWSL G+
           </Typography>
-          <NWSLGoalsAddedTable />
+          <LeagueGoalsAddedTable league="nwsl" />
         </Box>
 
         <Box>
           <Typography variant="h4" component="h2" gutterBottom>
             MLS G+
           </Typography>
-          <MLSGoalsAddedTable />
+          <LeagueGoalsAddedTable league="mls" />
         </Box>
       </Box>
     </Container>

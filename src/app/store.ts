@@ -1,11 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import goalsAddedReducer from '../features/goalsAddedSlice';
 import { nwslApi } from '../features/nwslApiSlice';
 import { mlsApi } from '../features/mlsApiSlice';
 
 export const store = configureStore({
   reducer: {
-    goalsAdded: goalsAddedReducer,
     [nwslApi.reducerPath]: nwslApi.reducer,
     [mlsApi.reducerPath]: mlsApi.reducer,
   },

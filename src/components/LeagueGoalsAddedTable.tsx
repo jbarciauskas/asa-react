@@ -2,18 +2,21 @@ import { useMemo, useState, useEffect } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { FormControl, InputLabel, Select, MenuItem, Box, TextField } from '@mui/material';
 import { Player, Team, GoalsAddedPlayer } from '../api/types';
+import { useGetTeamsQuery as useGetNWSLTeams, useGetPlayersQuery as useGetNWSLPlayers, useGetGoalsAddedQuery as useGetNWSLGoalsAdded } from '../features/nwslApiSlice';
+import { useGetTeamsQuery as useGetMLSTeams, useGetPlayersQuery as useGetMLSPlayers, useGetGoalsAddedQuery as useGetMLSGoalsAdded } from '../features/mlsApiSlice';
 
 interface LeagueGoalsAddedTableProps {
-  leagueName: string;
-  teams: Team[];
-  players: Player[];
-  goalsAdded: GoalsAddedPlayer[];
-  isLoadingTeams: boolean;
-  isLoadingPlayers: boolean;
-  isLoadingGoalsAdded: boolean;
-  years: string[];
-  selectedYear: string;
-  onYearChange: (year: string) => void;
+  leagueName?: string;
+  teams?: Team[];
+  players?: Player[];
+  goalsAdded?: GoalsAddedPlayer[];
+  isLoadingTeams?: boolean;
+  isLoadingPlayers?: boolean;
+  isLoadingGoalsAdded?: boolean;
+  years?: string[];
+  selectedYear?: string;
+  onYearChange?: (year: string) => void;
+  league?: 'mls' | 'nwsl';
 }
 
 interface ActionData {
@@ -33,18 +36,49 @@ const BASE_COLUMNS: GridColDef[] = [
   { field: 'goals_added_total', headerName: 'Goals Added (Total)', width: 180, type: 'number' },
 ];
 
-export default function LeagueGoalsAddedTable({
-  leagueName,
-  teams,
-  players,
-  goalsAdded,
-  isLoadingTeams,
-  isLoadingPlayers,
-  isLoadingGoalsAdded,
-  years,
-  selectedYear,
-  onYearChange,
-}: LeagueGoalsAddedTableProps) {
+export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps) {
+  // If league is provided, fetch data internally
+  const [internalYear, setInternalYear] = useState('2025');
+  const years = props.years ?? ['2025', '2024', '2023', '2022', '2021', '2020'];
+
+  let teams = props.teams;
+  let players = props.players;
+  let goalsAdded = props.goalsAdded;
+  let isLoadingTeams = props.isLoadingTeams;
+  let isLoadingPlayers = props.isLoadingPlayers;
+  let isLoadingGoalsAdded = props.isLoadingGoalsAdded;
+  let leagueName = props.leagueName;
+  let selectedYear = props.selectedYear ?? internalYear;
+  let onYearChange = props.onYearChange ?? setInternalYear;
+
+  // Always call all hooks
+  const mlsTeamsQuery = useGetMLSTeams();
+  const mlsPlayersQuery = useGetMLSPlayers({});
+  const mlsGoalsAddedQuery = useGetMLSGoalsAdded({ season_name: selectedYear });
+
+  const nwslTeamsQuery = useGetNWSLTeams();
+  const nwslPlayersQuery = useGetNWSLPlayers({});
+  const nwslGoalsAddedQuery = useGetNWSLGoalsAdded({ season_name: selectedYear });
+
+  if (props.league) {
+    leagueName = props.league.toUpperCase();
+    if (props.league === 'mls') {
+      teams = mlsTeamsQuery.data ?? [];
+      players = mlsPlayersQuery.data ?? [];
+      goalsAdded = mlsGoalsAddedQuery.data ?? [];
+      isLoadingTeams = mlsTeamsQuery.isLoading;
+      isLoadingPlayers = mlsPlayersQuery.isLoading;
+      isLoadingGoalsAdded = mlsGoalsAddedQuery.isLoading;
+    } else if (props.league === 'nwsl') {
+      teams = nwslTeamsQuery.data ?? [];
+      players = nwslPlayersQuery.data ?? [];
+      goalsAdded = nwslGoalsAddedQuery.data ?? [];
+      isLoadingTeams = nwslTeamsQuery.isLoading;
+      isLoadingPlayers = nwslPlayersQuery.isLoading;
+      isLoadingGoalsAdded = nwslGoalsAddedQuery.isLoading;
+    }
+  }
+
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [playerNameFilter, setPlayerNameFilter] = useState<string>('');
 
@@ -55,16 +89,16 @@ export default function LeagueGoalsAddedTable({
         teams,
         players,
         goalsAdded,
-        playerIds: goalsAdded.map(p => p.player_id),
-        missingPlayers: goalsAdded.filter(p => !players.find(pl => pl.player_id === p.player_id)),
-        playerMap: players.reduce((acc, p) => ({ ...acc, [p.player_id]: p.player_name }), {}),
+        playerIds: goalsAdded?.map(p => p.player_id) ?? [],
+        missingPlayers: goalsAdded?.filter(p => !players?.find(pl => pl.player_id === p.player_id)) ?? [],
+        playerMap: players?.reduce((acc, p) => ({ ...acc, [p.player_id]: p.player_name }), {}) ?? {},
       });
     }
   }, [leagueName, teams, players, goalsAdded, isLoadingTeams, isLoadingPlayers, isLoadingGoalsAdded]);
 
   // Memoized data processing
   const { data, columns } = useMemo(() => {
-    if (!goalsAdded.length || !players.length || !teams.length) {
+    if (!goalsAdded?.length || !players?.length || !teams?.length) {
       return { data: [], columns: BASE_COLUMNS };
     }
 
@@ -72,17 +106,17 @@ export default function LeagueGoalsAddedTable({
     const playerMap: Record<string, string> = {};
     const teamMap: Record<string, string> = {};
     
-    players.forEach((p) => {
+    players?.forEach((p) => {
       playerMap[String(p.player_id)] = p.player_name;
     });
-    teams.forEach((t) => {
+    teams?.forEach((t) => {
       teamMap[String(t.team_id)] = t.team_name;
     });
 
     // Filter goals added data by team if a team is selected
     const filteredGoalsAdded = selectedTeam
-      ? goalsAdded.filter((player) => String(player.team_id) === selectedTeam)
-      : goalsAdded;
+      ? goalsAdded?.filter((player) => String(player.team_id) === selectedTeam)
+      : goalsAdded ?? [];
 
     // Find all unique action types
     const actionTypes = Array.from(
@@ -187,7 +221,7 @@ export default function LeagueGoalsAddedTable({
             onChange={(e) => setSelectedTeam(e.target.value)}
           >
             <MenuItem value="">All Teams</MenuItem>
-            {teams.map((team) => (
+            {teams?.map((team) => (
               <MenuItem key={team.team_id} value={String(team.team_id)}>
                 {team.team_name}
               </MenuItem>
