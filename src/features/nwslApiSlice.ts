@@ -1,24 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { NWSLGoalsAddedPlayer, NWSLPlayer, NWSLTeam } from '../api/nwslApi';
+import { Player, Team, GoalsAddedPlayer } from '../api/types';
 
 export const nwslApi = createApi({
   reducerPath: 'nwslApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/v1/nwsl' }),
   tagTypes: ['Teams', 'Players', 'GoalsAdded'],
   endpoints: (builder) => ({
-    getTeams: builder.query<NWSLTeam[], void>({
+    getTeams: builder.query<Team[], void>({
       query: () => 'teams',
       providesTags: ['Teams'],
     }),
-    getPlayers: builder.query<NWSLPlayer[], void>({
+    getPlayers: builder.query<Player[], void>({
       query: () => 'players',
       providesTags: ['Players'],
-      transformResponse: (response: NWSLPlayer[]) => {
+      transformResponse: (response: Player[]) => {
         // The API client handles pagination, so we just return the full response
         return response;
       },
     }),
-    getGoalsAdded: builder.query<NWSLGoalsAddedPlayer[], { season_name: string }>({
+    getGoalsAdded: builder.query<GoalsAddedPlayer[], { season_name: string }>({
       query: (params) => ({
         url: 'players/goals-added',
         params,
