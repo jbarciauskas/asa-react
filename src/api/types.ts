@@ -13,6 +13,10 @@ export interface Team {
   // Add more fields as needed
 }
 
+export interface League {
+  league_name: string;
+}
+
 // Goals Added by Player with actions
 export interface GoalsAddedAction {
   action_type: string;

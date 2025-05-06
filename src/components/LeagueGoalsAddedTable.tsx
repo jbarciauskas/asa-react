@@ -2,8 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { FormControl, InputLabel, Select, MenuItem, Box, TextField } from '@mui/material';
 import { Player, Team, GoalsAddedPlayer } from '../api/types';
-import { useGetTeamsQuery as useGetNWSLTeams, useGetPlayersQuery as useGetNWSLPlayers, useGetGoalsAddedQuery as useGetNWSLGoalsAdded } from '../features/nwslApiSlice';
-import { useGetTeamsQuery as useGetMLSTeams, useGetPlayersQuery as useGetMLSPlayers, useGetGoalsAddedQuery as useGetMLSGoalsAdded } from '../features/mlsApiSlice';
+import { useGetTeamsQuery, useGetPlayersQuery, useGetGoalsAddedQuery } from '../features/asaApiSlice';
 
 interface LeagueGoalsAddedTableProps {
   leagueName?: string;
@@ -52,30 +51,30 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
   let onYearChange = props.onYearChange ?? setInternalYear;
 
   // Always call all hooks
-  const mlsTeamsQuery = useGetMLSTeams();
-  const mlsPlayersQuery = useGetMLSPlayers({});
-  const mlsGoalsAddedQuery = useGetMLSGoalsAdded({ season_name: selectedYear });
+  const { data: mlsTeams, isLoading: mlsIsLoadingTeams } = useGetTeamsQuery({ league: 'mls' });
+  const { data: mlsPlayers, isLoading: mlsIsLoadingPlayers } = useGetPlayersQuery({ league: 'mls' });
+  const { data: mlsGoalsAdded, isLoading: mlsIsLoadingGoalsAdded } = useGetGoalsAddedQuery({ league: 'mls', season_name: selectedYear });
 
-  const nwslTeamsQuery = useGetNWSLTeams();
-  const nwslPlayersQuery = useGetNWSLPlayers({});
-  const nwslGoalsAddedQuery = useGetNWSLGoalsAdded({ season_name: selectedYear });
+  const { data: nwslTeams, isLoading: nwslIsLoadingTeams } = useGetTeamsQuery({ league: 'nwsl' });
+  const { data: nwslPlayers, isLoading: nwslIsLoadingPlayers } = useGetPlayersQuery({ league: 'nwsl' });
+  const { data: nwslGoalsAdded, isLoading: nwslIsLoadingGoalsAdded } = useGetGoalsAddedQuery({ league: 'nwsl', season_name: selectedYear });
 
   if (props.league) {
     leagueName = props.league.toUpperCase();
     if (props.league === 'mls') {
-      teams = mlsTeamsQuery.data ?? [];
-      players = mlsPlayersQuery.data ?? [];
-      goalsAdded = mlsGoalsAddedQuery.data ?? [];
-      isLoadingTeams = mlsTeamsQuery.isLoading;
-      isLoadingPlayers = mlsPlayersQuery.isLoading;
-      isLoadingGoalsAdded = mlsGoalsAddedQuery.isLoading;
+      teams = mlsTeams;
+      players = mlsPlayers;
+      goalsAdded = mlsGoalsAdded;
+      isLoadingTeams = mlsIsLoadingTeams;
+      isLoadingPlayers = mlsIsLoadingPlayers;
+      isLoadingGoalsAdded = mlsIsLoadingGoalsAdded;
     } else if (props.league === 'nwsl') {
-      teams = nwslTeamsQuery.data ?? [];
-      players = nwslPlayersQuery.data ?? [];
-      goalsAdded = nwslGoalsAddedQuery.data ?? [];
-      isLoadingTeams = nwslTeamsQuery.isLoading;
-      isLoadingPlayers = nwslPlayersQuery.isLoading;
-      isLoadingGoalsAdded = nwslGoalsAddedQuery.isLoading;
+      teams = nwslTeams;
+      players = nwslPlayers;
+      goalsAdded = nwslGoalsAdded;
+      isLoadingTeams = nwslIsLoadingTeams;
+      isLoadingPlayers = nwslIsLoadingPlayers;
+      isLoadingGoalsAdded = nwslIsLoadingGoalsAdded;
     }
   }
 

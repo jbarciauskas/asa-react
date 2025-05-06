@@ -1,14 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { nwslApi } from '../features/nwslApiSlice';
-import { mlsApi } from '../features/mlsApiSlice';
+import { asaApi } from '../features/asaApiSlice';
 
 export const store = configureStore({
   reducer: {
-    [nwslApi.reducerPath]: nwslApi.reducer,
-    [mlsApi.reducerPath]: mlsApi.reducer,
+    [asaApi.reducerPath]: asaApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(nwslApi.middleware, mlsApi.middleware),
+    getDefaultMiddleware().concat(asaApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
