@@ -28,7 +28,7 @@ async function fetchAllPlayers(
 
 export const asaApi = createApi({
   reducerPath: 'asaApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api/v1' }),
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   tagTypes: ['Teams', 'Players', 'GoalsAdded'],
   endpoints: (builder) => ({
     getTeams: builder.query<Team[], { league: string }>({
