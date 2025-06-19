@@ -12,7 +12,9 @@ interface TeamsGoalsAddedTableProps {
 
 const BASE_COLUMNS: GridColDef[] = [
   { field: 'team_name', headerName: 'Team', width: 200 },
-  { field: 'total_goals_added', headerName: 'Total Goals Added', width: 180, type: 'number' },
+  { field: 'total_goals_added_for', headerName: 'Total G+ For', width: 150, type: 'number' },
+  { field: 'total_goals_added_against', headerName: 'Total G+ Against', width: 150, type: 'number' },
+  { field: 'total_goals_added_diff', headerName: 'Total G+ Difference', width: 150, type: 'number' },
 ];
 
 export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
@@ -65,25 +67,29 @@ export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
     // Process team data
     const mapped = teamsGoalsAdded.map((team) => {
       const actionMap: Record<string, any> = {};
-      let totalGoalsAdded = 0;
+      let totalGoalsAddedFor = 0;
+      let totalGoalsAddedAgainst = 0;
 
       team.data?.forEach((action) => {
         const actionKey = action.action_type;
-        actionMap[`${actionKey}_actions_for`] = action.actions_for;
-        actionMap[`${actionKey}_actions_against`] = action.actions_against;
         actionMap[`${actionKey}_goals_added_for`] = action.goals_added_for;
         actionMap[`${actionKey}_goals_added_against`] = action.goals_added_against;
         
         // Calculate net goals added for this action type
         const netGoalsAdded = action.goals_added_for - action.goals_added_against;
         actionMap[`${actionKey}_net_goals_added`] = netGoalsAdded;
-        totalGoalsAdded += netGoalsAdded;
+        if (actionKey != 'Interrupting' && actionKey != 'Claiming') {
+          totalGoalsAddedFor += action.goals_added_for;
+          totalGoalsAddedAgainst += action.goals_added_against;
+        }
       });
 
       return {
         id: team.team_id,
         team_name: teamMap[String(team.team_id)] || `Unknown Team (${team.team_id})`,
-        total_goals_added: totalGoalsAdded,
+        total_goals_added_for: totalGoalsAddedFor,
+        total_goals_added_against: totalGoalsAddedAgainst,
+        total_goals_added_diff: totalGoalsAddedFor - totalGoalsAddedAgainst,
         ...actionMap,
       };
     });
@@ -96,18 +102,6 @@ export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
     
     actionTypes.forEach((actionType) => {
       actionColumns.push(
-        {
-          field: `${actionType}_actions_for`,
-          headerName: `${actionType} Actions For`,
-          width: 120,
-          type: 'number',
-        },
-        {
-          field: `${actionType}_actions_against`,
-          headerName: `${actionType} Actions Against`,
-          width: 120,
-          type: 'number',
-        },
         {
           field: `${actionType}_goals_added_for`,
           headerName: `${actionType} G+ For`,
@@ -206,7 +200,7 @@ export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
         pageSizeOptions={[10, 25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
-          sorting: { sortModel: [{ field: 'total_goals_added', sort: 'desc' }] },
+          sorting: { sortModel: [{ field: 'total_goals_added_diff', sort: 'desc' }] },
         }}
         sx={{ height: 600 }}
       />
