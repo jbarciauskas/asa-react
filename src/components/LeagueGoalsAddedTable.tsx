@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { FormControl, InputLabel, Select, MenuItem, Box, TextField } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box, TextField, Button, Tooltip } from '@mui/material';
 import { Player, Team, GoalsAddedPlayer } from '../api/types';
 import { useGetTeamsQuery, useGetPlayersQuery, useGetGoalsAddedQuery } from '../features/asaApiSlice';
 
@@ -40,6 +40,22 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
   const [internalYear, setInternalYear] = useState('2025');
   const years = props.years ?? ['2025', '2024', '2023', '2022', '2021', '2020'];
 
+  // Filter states
+  const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const [playerNameFilter, setPlayerNameFilter] = useState<string>('');
+  const [minimumMinutes, setMinimumMinutes] = useState<string>('');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  // Clear all filters function
+  const clearFilters = () => {
+    setSelectedTeam('');
+    setPlayerNameFilter('');
+    setMinimumMinutes('');
+    setStartDate('');
+    setEndDate('');
+  };
+
   let teams = props.teams;
   let players = props.players;
   let goalsAdded = props.goalsAdded;
@@ -50,14 +66,31 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
   let selectedYear = props.selectedYear ?? internalYear;
   let onYearChange = props.onYearChange ?? setInternalYear;
 
+  // Build query parameters
+  const mlsQueryParams = {
+    league: 'mls' as const,
+    season_name: selectedYear,
+    ...(minimumMinutes && { minimum_minutes: parseInt(minimumMinutes) }),
+    ...(startDate && { start_date: startDate }),
+    ...(endDate && { end_date: endDate }),
+  };
+
+  const nwslQueryParams = {
+    league: 'nwsl' as const,
+    season_name: selectedYear,
+    ...(minimumMinutes && { minimum_minutes: parseInt(minimumMinutes) }),
+    ...(startDate && { start_date: startDate }),
+    ...(endDate && { end_date: endDate }),
+  };
+
   // Always call all hooks
   const { data: mlsTeams, isLoading: mlsIsLoadingTeams } = useGetTeamsQuery({ league: 'mls' });
   const { data: mlsPlayers, isLoading: mlsIsLoadingPlayers } = useGetPlayersQuery({ league: 'mls' });
-  const { data: mlsGoalsAdded, isLoading: mlsIsLoadingGoalsAdded } = useGetGoalsAddedQuery({ league: 'mls', season_name: selectedYear });
+  const { data: mlsGoalsAdded, isLoading: mlsIsLoadingGoalsAdded } = useGetGoalsAddedQuery(mlsQueryParams);
 
   const { data: nwslTeams, isLoading: nwslIsLoadingTeams } = useGetTeamsQuery({ league: 'nwsl' });
   const { data: nwslPlayers, isLoading: nwslIsLoadingPlayers } = useGetPlayersQuery({ league: 'nwsl' });
-  const { data: nwslGoalsAdded, isLoading: nwslIsLoadingGoalsAdded } = useGetGoalsAddedQuery({ league: 'nwsl', season_name: selectedYear });
+  const { data: nwslGoalsAdded, isLoading: nwslIsLoadingGoalsAdded } = useGetGoalsAddedQuery(nwslQueryParams);
 
   if (props.league) {
     leagueName = props.league.toUpperCase();
@@ -77,9 +110,6 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
       isLoadingGoalsAdded = nwslIsLoadingGoalsAdded;
     }
   }
-
-  const [selectedTeam, setSelectedTeam] = useState<string>('');
-  const [playerNameFilter, setPlayerNameFilter] = useState<string>('');
 
   // Debug logging
   useEffect(() => {
@@ -196,7 +226,7 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
 
   return (
     <Box>
-      <Box display="flex" gap={2} mb={2}>
+      <Box display="flex" gap={2} mb={2} flexWrap="wrap">
         <FormControl sx={{ minWidth: 120 }}>
           <InputLabel>Year</InputLabel>
           <Select
@@ -234,6 +264,50 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
           onChange={(e) => setPlayerNameFilter(e.target.value)}
           sx={{ minWidth: 200 }}
         />
+
+        <Tooltip title="Filter players who have played at least this many minutes">
+          <TextField
+            label="Minimum Minutes"
+            type="number"
+            value={minimumMinutes}
+            onChange={(e) => setMinimumMinutes(e.target.value)}
+            sx={{ minWidth: 150 }}
+            placeholder="e.g., 500"
+            helperText="Minimum minutes played"
+          />
+        </Tooltip>
+
+        <Tooltip title="Filter data from this date onwards">
+          <TextField
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            sx={{ minWidth: 150 }}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              max: endDate || undefined
+            }}
+          />
+        </Tooltip>
+
+        <Tooltip title="Filter data up to this date">
+          <TextField
+            label="End Date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            sx={{ minWidth: 150 }}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{
+              min: startDate || undefined
+            }}
+          />
+        </Tooltip>
+
+        <Button variant="outlined" onClick={clearFilters}>
+          Clear Filters
+        </Button>
       </Box>
 
       <DataGrid

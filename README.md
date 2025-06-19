@@ -1,6 +1,17 @@
 # ASA React
 
-A React application for viewing American Soccer Analysis data, including goals added statistics for NWSL players.
+A React application for viewing American Soccer Analysis data, including goals added statistics for NWSL and MLS players.
+
+## Features
+
+- **League Selection**: Switch between NWSL and MLS data
+- **Year Filter**: Select different seasons (2020-2025)
+- **Team Filter**: Filter players by specific teams
+- **Player Name Filter**: Search for players by name
+- **Minimum Minutes Filter**: Filter players who have played at least a specified number of minutes
+- **Date Range Filter**: Filter data by start and end dates
+- **Clear Filters**: Reset all filters with one click
+- **Sortable Data Grid**: Sort by any column including goals added totals and action types
 
 ## Available Scripts
 

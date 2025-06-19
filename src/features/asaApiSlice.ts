@@ -47,7 +47,7 @@ export const asaApi = createApi({
       },
       providesTags: ['Players'],
     }),
-    getGoalsAdded: builder.query<GoalsAddedPlayer[], { league: string; season_name: string }>({
+    getGoalsAdded: builder.query<GoalsAddedPlayer[], { league: string; season_name: string } & CommonApiParams>({
       query: ({ league, ...params }) => ({
         url: `${league}/players/goals-added`,
         params,
