@@ -5,6 +5,10 @@ A React application for viewing American Soccer Analysis data, including goals a
 ## Features
 
 - **League Selection**: Switch between NWSL and MLS data
+- **View Types**: Three different views for each league:
+  - **Players**: Individual player statistics with goals added data
+  - **Teams**: Team-level analytics (coming soon)
+  - **Goalkeepers**: Goalkeeper-specific statistics (coming soon)
 - **Year Filter**: Select different seasons (2020-2025) - disabled when using date filters
 - **Team Filter**: Filter players by specific teams
 - **Player Name Filter**: Search for players by name
@@ -13,7 +17,7 @@ A React application for viewing American Soccer Analysis data, including goals a
 - **Clear Filters**: Reset all filters with one click
 - **Sortable Data Grid**: Sort by any column including goals added totals and action types
 
-**Note**: You can filter by either season (year) OR date range, but not both simultaneously. Date filters will override the year selection. When using a start date, an end date is required and will default to the current date if not specified.
+**Note**: You can filter by either season (year) OR date range, but not both simultaneously. Date filters will override the year selection. When using a start date, an end date is required and will default to the current date if not specified. The table displays player names, teams, minutes played, total goals added, and breakdown by action types.
 
 ## Available Scripts
 

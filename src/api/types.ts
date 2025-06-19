@@ -30,6 +30,7 @@ export interface GoalsAddedPlayer {
   player_id: number;
   team_id: number;
   data: GoalsAddedAction[];
+  minutes_played?: number;
   // Add more fields as needed
 }
 

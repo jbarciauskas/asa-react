@@ -27,11 +27,13 @@ interface PlayerData {
   player_id: number;
   team_ids: Set<string>;
   data: ActionData[];
+  minutes_played: number;
 }
 
 const BASE_COLUMNS: GridColDef[] = [
   { field: 'player_name', headerName: 'Player', width: 180 },
   { field: 'team_names', headerName: 'Teams', width: 200 },
+  { field: 'minutes_played', headerName: 'Minutes Played', width: 150, type: 'number' },
   { field: 'goals_added_total', headerName: 'Goals Added (Total)', width: 180, type: 'number' },
 ];
 
@@ -184,12 +186,15 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
           player_id: player.player_id,
           team_ids: new Set<string>(),
           data: [],
+          minutes_played: 0,
         });
       }
       const playerData = playerDataMap.get(playerId);
       if (playerData) {
         playerData.team_ids.add(String(player.team_id));
         playerData.data.push(...(player.data ?? []));
+        // Sum up minutes played from all teams for this player
+        playerData.minutes_played += player.minutes_played || 0;
       }
     });
 
@@ -215,6 +220,7 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
         id: playerData.player_id,
         player_name: playerName || `Unknown Player (${playerData.player_id})`,
         team_names: teamNames,
+        minutes_played: playerData.minutes_played,
         goals_added_total: total,
         ...actionMap,
       };
