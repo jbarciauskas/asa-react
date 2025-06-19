@@ -3,6 +3,26 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { FormControl, InputLabel, Select, MenuItem, Box, TextField, Button, Tooltip } from '@mui/material';
 import { useGetGoalKeepersAddedQuery } from '../features/asaApiSlice';
 
+// Helper function to convert table data to CSV
+const convertToCSV = (data: any[], columns: GridColDef[]): string => {
+  // Get header row
+  const headers = columns.map(col => col.headerName || col.field).join(',');
+  
+  // Get data rows
+  const rows = data.map(row => {
+    return columns.map(col => {
+      const value = row[col.field];
+      // Handle values that need quotes (strings with commas, quotes, or newlines)
+      if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    }).join(',');
+  }).join('\n');
+  
+  return `${headers}\n${rows}`;
+};
+
 interface GoalkeepersGoalsAddedTableProps {
   league: 'mls' | 'nwsl';
   selectedYear: string;
@@ -31,6 +51,17 @@ export default function GoalkeepersGoalsAddedTable(props: GoalkeepersGoalsAddedT
   const [minimumMinutes, setMinimumMinutes] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+
+  // Copy to clipboard function
+  const copyToClipboard = async () => {
+    try {
+      const csvData = convertToCSV(data, columns);
+      await navigator.clipboard.writeText(csvData);
+      console.log('Table data copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  };
 
   // Clear all filters function
   const clearFilters = () => {
@@ -225,6 +256,10 @@ export default function GoalkeepersGoalsAddedTable(props: GoalkeepersGoalsAddedT
 
         <Button variant="outlined" onClick={clearFilters}>
           Clear Filters
+        </Button>
+
+        <Button variant="contained" onClick={copyToClipboard} sx={{ ml: 'auto' }}>
+          Copy to Clipboard
         </Button>
       </Box>
 
