@@ -17,7 +17,11 @@ function App() {
     <Container maxWidth="lg">
       <Box py={4}>
         <Typography variant="h3" component="h1" gutterBottom>
-          Soccer Analytics Dashboard
+          Goals Added (G+)
+        </Typography>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <p><a href="https://www.americansocceranalysis.com/what-are-goals-added">What are Goals Added (G+)?</a></p>
         </Typography>
 
         <Box mb={4}>
@@ -66,6 +70,11 @@ function App() {
           />
         )}
       </Box>
+
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        <p>Powered by the <a href="https://americansocceranalysis.com">American Soccer Analysis</a> API and data.</p> 
+      </Typography>
+
     </Container>
   );
 }
