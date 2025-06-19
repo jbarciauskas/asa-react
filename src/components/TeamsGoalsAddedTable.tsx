@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { FormControl, InputLabel, Select, MenuItem, Box, TextField, Button, Tooltip } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box, Button } from '@mui/material';
 import { useGetTeamsGoalsAddedQuery, useGetTeamsQuery } from '../features/asaApiSlice';
 
 interface TeamsGoalsAddedTableProps {
@@ -20,33 +20,14 @@ const BASE_COLUMNS: GridColDef[] = [
 export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
   const { league, selectedYear, onYearChange, years } = props;
 
-  // Filter states
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-
   // Clear all filters function
   const clearFilters = () => {
-    setStartDate('');
-    setEndDate('');
     onYearChange('2025');
-  };
-
-  // Build query parameters
-  const getCurrentDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
   };
 
   const queryParams = {
     league,
-    ...(startDate || endDate 
-      ? { 
-          ...(startDate && { start_date: startDate }),
-          ...(endDate && { end_date: endDate }),
-          ...(startDate && !endDate && { end_date: getCurrentDate() })
-        }
-      : { season_name: selectedYear }
-    ),
+    season_name: selectedYear,
   };
 
   const { data: teamsGoalsAdded, isLoading: isLoadingGoalsAdded } = useGetTeamsGoalsAddedQuery(queryParams);
@@ -78,7 +59,7 @@ export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
         // Calculate net goals added for this action type
         const netGoalsAdded = action.goals_added_for - action.goals_added_against;
         actionMap[`${actionKey}_net_goals_added`] = netGoalsAdded;
-        if (actionKey != 'Interrupting' && actionKey != 'Claiming') {
+        if (actionKey !== 'Interrupting' && actionKey !== 'Claiming') {
           totalGoalsAddedFor += action.goals_added_for;
           totalGoalsAddedAgainst += action.goals_added_against;
         }
@@ -142,7 +123,6 @@ export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
             value={selectedYear}
             label="Year"
             onChange={(e) => onYearChange(e.target.value)}
-            disabled={!!(startDate || endDate)}
           >
             {years.map((year) => (
               <MenuItem key={year} value={year}>
@@ -151,43 +131,6 @@ export default function TeamsGoalsAddedTable(props: TeamsGoalsAddedTableProps) {
             ))}
           </Select>
         </FormControl>
-
-        <Tooltip title="Filter data from this date onwards (requires end date, overrides year selection)">
-          <TextField
-            label="Start Date"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            sx={{ minWidth: 150 }}
-            InputLabelProps={{ shrink: true }}
-            inputProps={{
-              max: endDate || undefined
-            }}
-            helperText={startDate || endDate ? "Date filters override year selection" : ""}
-          />
-        </Tooltip>
-
-        <Tooltip title="Filter data up to this date (required when using start date, defaults to today)">
-          <TextField
-            label="End Date"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            sx={{ minWidth: 150 }}
-            InputLabelProps={{ shrink: true }}
-            inputProps={{
-              min: startDate || undefined
-            }}
-            helperText={
-              startDate || endDate 
-                ? startDate && !endDate 
-                  ? "Auto-set to today" 
-                  : "Date filters override year selection"
-                : ""
-            }
-            placeholder={startDate && !endDate ? getCurrentDate() : undefined}
-          />
-        </Tooltip>
 
         <Button variant="outlined" onClick={clearFilters}>
           Clear Filters
