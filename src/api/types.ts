@@ -46,6 +46,7 @@ export interface GoalsAddedTeamAction {
 export interface GoalsAddedTeam {
   team_id: number;
   data: GoalsAddedTeamAction[];
+  minutes?: number;
 }
 
 export interface GoalsAddedGoalkeeper {
@@ -71,6 +72,8 @@ export interface CommonApiParams {
   split_by_games?: boolean;
   stage_name?: string;
   general_position?: string;
+  zone?: number[];
+  gamestate_trunc?: number | number[];
 }
 
 export interface GoalsAddedParams extends CommonApiParams {
