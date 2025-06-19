@@ -54,6 +54,12 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
     setMinimumMinutes('');
     setStartDate('');
     setEndDate('');
+    // Reset year to default when clearing date filters
+    if (props.onYearChange) {
+      props.onYearChange('2025');
+    } else {
+      setInternalYear('2025');
+    }
   };
 
   let teams = props.teams;
@@ -67,20 +73,35 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
   let onYearChange = props.onYearChange ?? setInternalYear;
 
   // Build query parameters
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+  };
+
   const mlsQueryParams = {
     league: 'mls' as const,
-    season_name: selectedYear,
+    ...(startDate || endDate 
+      ? { 
+          ...(startDate && { start_date: startDate }),
+          ...(endDate && { end_date: endDate }),
+          ...(startDate && !endDate && { end_date: getCurrentDate() })
+        }
+      : { season_name: selectedYear }
+    ),
     ...(minimumMinutes && { minimum_minutes: parseInt(minimumMinutes) }),
-    ...(startDate && { start_date: startDate }),
-    ...(endDate && { end_date: endDate }),
   };
 
   const nwslQueryParams = {
     league: 'nwsl' as const,
-    season_name: selectedYear,
+    ...(startDate || endDate 
+      ? { 
+          ...(startDate && { start_date: startDate }),
+          ...(endDate && { end_date: endDate }),
+          ...(startDate && !endDate && { end_date: getCurrentDate() })
+        }
+      : { season_name: selectedYear }
+    ),
     ...(minimumMinutes && { minimum_minutes: parseInt(minimumMinutes) }),
-    ...(startDate && { start_date: startDate }),
-    ...(endDate && { end_date: endDate }),
   };
 
   // Always call all hooks
@@ -233,6 +254,7 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
             value={selectedYear}
             label="Year"
             onChange={(e) => onYearChange(e.target.value)}
+            disabled={!!(startDate || endDate)}
           >
             {years.map((year) => (
               <MenuItem key={year} value={year}>
@@ -277,7 +299,7 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
           />
         </Tooltip>
 
-        <Tooltip title="Filter data from this date onwards">
+        <Tooltip title="Filter data from this date onwards (requires end date, overrides year selection)">
           <TextField
             label="Start Date"
             type="date"
@@ -288,10 +310,11 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
             inputProps={{
               max: endDate || undefined
             }}
+            helperText={startDate || endDate ? "Date filters override year selection" : ""}
           />
         </Tooltip>
 
-        <Tooltip title="Filter data up to this date">
+        <Tooltip title="Filter data up to this date (required when using start date, defaults to today)">
           <TextField
             label="End Date"
             type="date"
@@ -302,6 +325,14 @@ export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps)
             inputProps={{
               min: startDate || undefined
             }}
+            helperText={
+              startDate || endDate 
+                ? startDate && !endDate 
+                  ? "Auto-set to today" 
+                  : "Date filters override year selection"
+                : ""
+            }
+            placeholder={startDate && !endDate ? getCurrentDate() : undefined}
           />
         </Tooltip>
 

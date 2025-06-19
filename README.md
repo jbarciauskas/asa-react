@@ -5,13 +5,15 @@ A React application for viewing American Soccer Analysis data, including goals a
 ## Features
 
 - **League Selection**: Switch between NWSL and MLS data
-- **Year Filter**: Select different seasons (2020-2025)
+- **Year Filter**: Select different seasons (2020-2025) - disabled when using date filters
 - **Team Filter**: Filter players by specific teams
 - **Player Name Filter**: Search for players by name
 - **Minimum Minutes Filter**: Filter players who have played at least a specified number of minutes
-- **Date Range Filter**: Filter data by start and end dates
+- **Date Range Filter**: Filter data by start and end dates (overrides year selection)
 - **Clear Filters**: Reset all filters with one click
 - **Sortable Data Grid**: Sort by any column including goals added totals and action types
+
+**Note**: You can filter by either season (year) OR date range, but not both simultaneously. Date filters will override the year selection. When using a start date, an end date is required and will default to the current date if not specified.
 
 ## Available Scripts
 

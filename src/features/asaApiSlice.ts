@@ -47,14 +47,24 @@ export const asaApi = createApi({
       },
       providesTags: ['Players'],
     }),
-    getGoalsAdded: builder.query<GoalsAddedPlayer[], { league: string; season_name: string } & CommonApiParams>({
+    getGoalsAdded: builder.query<GoalsAddedPlayer[], { league: string; season_name?: string } & CommonApiParams>({
       query: ({ league, ...params }) => ({
         url: `${league}/players/goals-added`,
         params,
       }),
-      providesTags: (result, error, arg) => [
-        { type: 'GoalsAdded', id: `${arg.league}-${arg.season_name}` }
-      ],
+      providesTags: (result, error, arg) => {
+        const tagId = [
+          arg.league,
+          arg.season_name || 'no-season',
+          arg.minimum_minutes?.toString() || 'no-min',
+          arg.start_date || 'no-start',
+          arg.end_date || 'no-end'
+        ].join('-');
+        
+        return [
+          { type: 'GoalsAdded', id: tagId }
+        ];
+      },
     }),
   }),
 });
