@@ -5,7 +5,6 @@ export default async function handler(req: IncomingMessage & { url?: string }, r
   // Extract the path after /api/
   const match = req.url?.match(/^\/api\/(.*)/);
   const targetPath = match ? `/${match[1]}` : '';
-  console.log(targetPath);
   const targetUrl = `https://app.americansocceranalysis.com/api/v1${targetPath}`;
 
   try {

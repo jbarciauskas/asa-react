@@ -4,7 +4,7 @@ import { FormControl, InputLabel, Select, MenuItem, Box, TextField, Button, Tool
 import { Player, Team, GoalsAddedPlayer } from '../api/types';
 import { useGetTeamsQuery, useGetPlayersQuery, useGetGoalsAddedQuery } from '../features/asaApiSlice';
 
-interface LeagueGoalsAddedTableProps {
+interface PlayerGoalsAddedTableProps {
   leagueName?: string;
   teams?: Team[];
   players?: Player[];
@@ -37,7 +37,7 @@ const BASE_COLUMNS: GridColDef[] = [
   { field: 'goals_added_total', headerName: 'Goals Added (Total)', width: 180, type: 'number' },
 ];
 
-export default function LeagueGoalsAddedTable(props: LeagueGoalsAddedTableProps) {
+export default function PlayerGoalsAddedTable(props: PlayerGoalsAddedTableProps) {
   // If league is provided, fetch data internally
   const [internalYear, setInternalYear] = useState('2025');
   const years = props.years ?? ['2025', '2024', '2023', '2022', '2021', '2020'];

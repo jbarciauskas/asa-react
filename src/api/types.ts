@@ -34,6 +34,30 @@ export interface GoalsAddedPlayer {
   // Add more fields as needed
 }
 
+// Goals Added by Team with actions
+export interface GoalsAddedTeamAction {
+  action_type: string;
+  actions_for: number;
+  actions_against: number;
+  goals_added_for: number;
+  goals_added_against: number;
+}
+
+export interface GoalsAddedTeam {
+  team_id: number;
+  data: GoalsAddedTeamAction[];
+}
+
+export interface GoalsAddedGoalkeeper {
+  player_id: number;
+  player_name: string;
+  team_id: number;
+  team_name: string;
+  data: GoalsAddedAction[];
+  minutes_played?: number;
+  // Add more fields as needed
+}
+
 // Common API parameters
 export interface CommonApiParams {
   minimum_minutes?: number;

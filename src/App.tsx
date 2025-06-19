@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, Container, Tabs, Tab } from '@mui/material';
-import LeagueGoalsAddedTable from './components/LeagueGoalsAddedTable';
+import PlayerGoalsAddedTable from './components/PlayerGoalsAddedTable';
+import TeamsGoalsAddedTable from './components/TeamsGoalsAddedTable';
+import GoalkeepersGoalsAddedTable from './components/GoalkeepersGoalsAddedTable';
 
 type LeagueType = 'nwsl' | 'mls';
 type SubTabType = 'players' | 'teams' | 'goalkeepers';
@@ -8,6 +10,8 @@ type SubTabType = 'players' | 'teams' | 'goalkeepers';
 function App() {
   const [selectedLeague, setSelectedLeague] = useState<LeagueType>('nwsl');
   const [selectedSubTab, setSelectedSubTab] = useState<SubTabType>('players');
+  const [selectedYear, setSelectedYear] = useState<string>('2025');
+  const years = ['2025', '2024', '2023', '2022', '2021', '2020'];
 
   return (
     <Container maxWidth="lg">
@@ -43,27 +47,23 @@ function App() {
         </Box>
 
         {selectedSubTab === 'players' && (
-          <LeagueGoalsAddedTable league={selectedLeague} />
+          <PlayerGoalsAddedTable league={selectedLeague} />
         )}
         {selectedSubTab === 'teams' && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Teams View - Coming Soon
-            </Typography>
-            <Typography>
-              Team-level analytics and statistics will be displayed here.
-            </Typography>
-          </Box>
+          <TeamsGoalsAddedTable 
+            league={selectedLeague}
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
+            years={years}
+          />
         )}
         {selectedSubTab === 'goalkeepers' && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Goalkeepers View - Coming Soon
-            </Typography>
-            <Typography>
-              Goalkeeper-specific analytics and statistics will be displayed here.
-            </Typography>
-          </Box>
+          <GoalkeepersGoalsAddedTable 
+            league={selectedLeague}
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
+            years={years}
+          />
         )}
       </Box>
     </Container>
